@@ -1,0 +1,25 @@
+<fieldset>
+  <label [formGroup]="form" for="field3" class="row">
+    <span>Field 3</span>
+    <input id="field3" (keydown.enter)="addEntity(form.get('field3')!.value)" formControlName="field3">
+  </label>
+
+  <div for="field3" class="row">
+    <span></span>
+    <ol *ngIf="entities.length" (click)="handdleEntityMouseEvent($event)" (mouseover)="handdleEntityMouseEvent($event)"
+      (mouseout)="handdleEntityMouseEvent($event)" (dragstart)="handdleEntityMouseEvent($event)"
+      (dragover)="handdleEntityMouseEvent($event)" (drop)="handdleEntityMouseEvent($event)">
+      @for (ent of entities; track ent.id) {
+      <li [attr.data-ind]="$index" draggable="true">{{ ent.value }}
+        <!--
+        The easiest way to show buttons on hover is to have them in the html
+        and then use css to show/hide them on :hover.
+        I was bored so i played with the (mouseover/out) events :)
+        <button type="button" title="Remove" data-action="delete">-</button>
+        -->
+      </li>
+      }
+    </ol>
+  </div>
+
+</fieldset>

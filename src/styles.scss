@@ -1,1 +1,41 @@
-/* You can add global styles to this file, and also import other style files */
+@import './variables.scss';
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: $color-main-background;
+}
+
+.container {
+  max-width: 940px;
+  margin: 0 auto;
+}
+
+.content {
+  margin: .5rem;
+  padding: .75rem;
+  border: solid 1px $color-separator;
+  background-color: $color-content-background;
+}
+
+.message {
+  display: flex;
+  gap: .5rem;
+  span {
+    text-transform: capitalize;
+  }
+  .text {
+    flex: 1;
+  }
+}
+
+.disabled {
+  opacity: .75;
+}
+
+fieldset {
+  border: none;
+}

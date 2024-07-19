@@ -1,0 +1,44 @@
+@import '../../variables.scss';  // TODO find why ~ path is not working. Was it only a webpack thing?
+
+fieldset {
+  display: flex;
+  border-color: $color-separator;
+  flex-direction: column;
+  gap: .5rem;
+  padding: .5rem;
+
+  .row {
+    display: grid;
+    // I preffer the mobile first approach, it is easier.
+    grid-template-columns: 1fr;
+    gap: .2rem;
+    &:not(:last-child) {
+      padding-bottom: .5rem;
+      border-bottom: solid 1px $color-separator;
+    }
+
+    .message {
+      grid-column: span 2;
+    }
+
+    @media (min-width: ($screen-small + 1px)) {
+      grid-template-columns: 1fr 2fr;
+    }
+  }
+}
+
+ol {
+  li {
+    list-style-type: decimal-leading-zero;
+    margin: .2rem 0;
+    line-height: 1.5em;
+
+    button {
+      cursor: pointer;
+    }
+  }
+
+  @media (min-width: ($screen-small + 1px)) {
+    border-left: solid 1px $color-separator;
+  }
+}
