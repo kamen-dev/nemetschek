@@ -1,20 +1,9 @@
 import { NgIf } from '@angular/common';
 import { Component, Input, OnInit, Output, EventEmitter, SimpleChanges, OnChanges, SimpleChange, OnDestroy, WritableSignal } from '@angular/core';
 import { FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { Subscription } from 'rxjs';
 import { MessagesService } from '../../services/messages.service';
 
-// I need a domain context for better name..
-export type Entity = {
-  id: string,     // idealy some sort of uuid
-  value: string,  // the text that was entered in the input field
-  order: number   // different browsers don't always perserve json array's order of items
-}
-
-export type FormData = {
-  field3?: string;  // I am not sure if this field should be saved.
-  field4?: Entity[];
-}
+import { Tab2Entity, Tab2Data } from '../../models';
 
 @Component({
   selector: 'app-tab2',
@@ -26,25 +15,23 @@ export type FormData = {
     './tab2.component.scss'
   ]
 })
-export class Tab2Component implements OnInit, OnDestroy, OnChanges {
-  @Input() prefill: FormData = {
+export class Tab2Component implements OnInit, OnChanges {
+  @Input() prefill: Tab2Data = {
     field3: '',
     field4: []
   };
-  @Output() valueChange = new EventEmitter<FormData>();
+  @Output() valueChange = new EventEmitter<Tab2Data>();
 
   @Input()
   disabled: boolean = true;
 
-  protected _subs: Subscription[] = [];
-
-  entities: Entity[] = [];
+  entities: Tab2Entity[] = [];
 
   form = new FormGroup({
     field3: new FormControl<string>('') as FormControl<string>,
   })
 
-  state: FormData = {
+  state: Tab2Data = {
     field3: '',
     field4: []
   }
@@ -66,14 +53,13 @@ export class Tab2Component implements OnInit, OnDestroy, OnChanges {
     this.deleteButton.setHTMLUnsafe('-');
 
     // when field 3 is changed emit
-    const sub = this.form.valueChanges.subscribe(value => {
+    this.form.valueChanges.subscribe(value => {
       this.state = {
         field3: value.field3,
         field4: this.entities
       };
       this.valueChange.emit(this.state);
     });
-    this._subs.push(sub);
   }
 
   onPrefillChanges(change: SimpleChange) {
@@ -87,7 +73,7 @@ export class Tab2Component implements OnInit, OnDestroy, OnChanges {
     if (!changed.field4) {
       return;
     }
-    this.entities = changed.field4.sort((a: Entity, b: Entity) => {
+    this.entities = changed.field4.sort((a: Tab2Entity, b: Tab2Entity) => {
       if (a.order > b.order) return 1;
       if (a.order < b.order) return -1;
       return 0;
@@ -106,31 +92,18 @@ export class Tab2Component implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  ngOnDestroy(): void {
-    this._subs.forEach((sub) => sub.unsubscribe());
-  }
-
-  addEntity(text: string) {
+  addTab2Entity(text: string) {
     if (text.length === 0) {
-      return this.messages.add({
-        type: 'error',
-        text: 'please enter a value',
-      });
+      return this.messages.error('please enter a value');
     }
 
     if (this.entities.length >= 10) {
-      return this.messages.add({
-        type: 'error',
-        text: 'maximum number of items reached',
-      });
+      return this.messages.error('maximum number of items reached');
     }
 
     let lower = text.toLowerCase();
     if (this.entities.find(ent => ent.value.toLowerCase() === lower) !== undefined) {
-      return this.messages.add({
-        type: 'error',
-        text: 'item already exists in array',
-      });
+      return this.messages.error('item already exists in array');
     }
 
     this.entities.push({
@@ -151,7 +124,7 @@ export class Tab2Component implements OnInit, OnDestroy, OnChanges {
     this.form.patchValue(this.form.value); //trigger change event
   }
 
-  removeEntity(ind: number) {
+  removeTab2Entity(ind: number) {
     this.entities.splice(ind, 1);
     this._recalcOrder();
   }
@@ -164,10 +137,10 @@ export class Tab2Component implements OnInit, OnDestroy, OnChanges {
     this._recalcOrder();
   }
 
-  hoverEntity: number = -1;
-  dragEntity: number = -1;
+  hoverTab2Entity: number = -1;
+  dragTab2Entity: number = -1;
 
-  // why event delegation instead of directly calling removeEntity($index)??
+  // why event delegation instead of directly calling removeTab2Entity($index)??
   // For this demo it is an overkill, but for large lists with 100k+ rows this
   // saves a lot of memory and cpu power
   handdleEntityMouseEvent(event: MouseEvent) {
@@ -175,8 +148,8 @@ export class Tab2Component implements OnInit, OnDestroy, OnChanges {
     let entityEl = target.closest('[data-ind]');
 
     if (!entityEl) {
-      if (this.hoverEntity > -1) {
-        this.hoverEntity = -1;
+      if (this.hoverTab2Entity > -1) {
+        this.hoverTab2Entity = -1;
         this.deleteButton.parentElement?.removeChild(this.deleteButton);
       }
       return; // "clicked" somwhere on the parent but not on an entity row
@@ -192,7 +165,7 @@ export class Tab2Component implements OnInit, OnDestroy, OnChanges {
     }
 
     if (event.type === 'dragstart') {
-      this.dragEntity = entityInd;
+      this.dragTab2Entity = entityInd;
       return;
     }
 
@@ -202,18 +175,18 @@ export class Tab2Component implements OnInit, OnDestroy, OnChanges {
     }
 
     if (event.type === 'drop') {
-      this.reorderEntities(this.dragEntity, entityInd);
+      this.reorderEntities(this.dragTab2Entity, entityInd);
       return;
     }
 
     if (event.type === 'click' && target.closest('[data-action="delete"]')) {
-      this.removeEntity(entityInd);
+      this.removeTab2Entity(entityInd);
       return;
     }
 
-    if (event.type === 'mouseover' && this.hoverEntity !== entityInd) {
+    if (event.type === 'mouseover' && this.hoverTab2Entity !== entityInd) {
       entityEl.appendChild(this.deleteButton);
-      this.hoverEntity === entityInd;
+      this.hoverTab2Entity === entityInd;
       return;
     }
   }

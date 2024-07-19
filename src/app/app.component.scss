@@ -1,7 +1,14 @@
-nav ul {
+nav {
   display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
-  padding: 0;
-  margin: 0;
-  list-style-type: none;
+  justify-content: space-between;
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+  }
 }

@@ -1,8 +1,10 @@
 <main class="container">
-
   <p class="content">
-    <button (click)="save()" [disabled]="!!this.loading">Save</button>
-    @if (loading) {
+    <button
+      (click)="saveState()"
+      [disabled]="!!loading() || isOnSavedState()"
+    >Save</button>
+    @if (loading()) {
       Proccesing...
     }
   </p>
@@ -29,18 +31,18 @@
     </a>
   </nav>
 
-  <section class="content" [class.disabled]="!!this.loading">
+  <section class="content" [class.disabled]="!!loading()">
     <app-tab1
       *ngIf="tab === 'tab1'"
-      [disabled]="!!this.loading"
-      [prefill]="currentState.tab1"
+      [disabled]="!!loading()"
+      [prefill]="currentState().tab1"
       (valueChange)="updateState(['tab1', $event])"
     />
 
     <app-tab2
       *ngIf="tab === 'tab2'"
-      [disabled]="!!this.loading"
-      [prefill]="currentState.tab2"
+      [disabled]="!!loading()"
+      [prefill]="currentState().tab2"
       (valueChange)="updateState(['tab2', $event])"
     />
   </section>

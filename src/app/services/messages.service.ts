@@ -31,6 +31,10 @@ export class MessagesService {
     });
   }
 
+  error(text: string) {
+    return this.add({ type: 'error', text })
+  }
+
   get = () => this._messages();
 
   remove(ind: number) {

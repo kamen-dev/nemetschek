@@ -1,10 +1,14 @@
-import { Component, OnInit } from '@angular/core';
-import { Tab1Component as Tab1, FormData as Tab1Data } from './tab1/tab1.component';
-import { Tab2Component as Tab2, FormData as Tab2Data } from './tab2/tab2.component';
-import { AsyncPipe, NgIf } from '@angular/common'; // sometimes *ngIf looks better than @if
+import { Component, OnInit, signal } from '@angular/core';
+import { Tab1Component as Tab1 } from './tab1/tab1.component';
+import { Tab2Component as Tab2 } from './tab2/tab2.component';
+import { AsyncPipe, JsonPipe, NgIf } from '@angular/common'; // sometimes *ngIf looks better than @if
 import { ActivatedRoute, RouterLink, RouterLinkActive } from '@angular/router';
-import { Observable, of, switchMap } from 'rxjs';
+import { catchError, forkJoin, Observable, of, Subject, switchMap, takeUntil, tap } from 'rxjs';
 import { MessagesService } from '../services/messages.service';
+import { Tab1Data, Tab2Data } from '../models';
+import { Tab1Service } from '../services/tab1.service';
+import { Tab2Service } from '../services/tab2.service';
+// import { deepEqual } from 'assert'; // this does not work in the browser...
 
 type State = {
   tab1: Tab1Data,
@@ -14,24 +18,55 @@ type State = {
 @Component({
   selector: 'app-page-form',
   standalone: true,
-  imports: [NgIf, Tab1, Tab2, AsyncPipe, RouterLink, RouterLinkActive],
+  imports: [NgIf, Tab1, Tab2, AsyncPipe, JsonPipe, RouterLink, RouterLinkActive],
   templateUrl: './page-form.component.html',
   styleUrl: './page-form.component.scss'
 })
 export class PageFormComponent implements OnInit {
+  private destroy$ = new Subject();
 
-  currentState = this._getEmptyState();
-  initState = this._getEmptyState();
+  currentState = signal<State>(this._getEmptyState());
+  savedState = signal<State>(this._getEmptyState());
 
-  loading: number = 0;
+  loading = signal(0);
   selectedTab$!: Observable<string>;
 
-  constructor(private route: ActivatedRoute, public messages: MessagesService) {}
+  constructor(
+    private route: ActivatedRoute,
+    private tab1Service: Tab1Service,
+    private tab2Service: Tab2Service,
+    public messages: MessagesService,
+  ) { }
 
   ngOnInit(): void {
     this.selectedTab$ = this.route.paramMap.pipe(
       switchMap(params => of(params.get('tab') || 'tab1'))
     )
+
+    this.loading.update(v => v + 1);
+
+    const tab1 = this.tab1Service.fetch().pipe(catchError(err => {
+      this.messages.error(err);
+      return of(this._getEmptyState().tab1);
+    }));
+
+    const tab2 = this.tab2Service.fetch().pipe(catchError(err => {
+      this.messages.error(err);
+      return of(this._getEmptyState().tab2);
+    }));
+
+    forkJoin({ tab1, tab2 }).pipe(
+      tap(_ => this.loading.update(v => v - 1)),
+      takeUntil(this.destroy$),
+      catchError(err => {
+        this.messages.error(err);
+        return of(this._getEmptyState());
+      })
+    ).subscribe((value) => {
+      // make copies but destroy all complex data types like date or map
+      this.currentState.set(JSON.parse(JSON.stringify(value)));
+      this.savedState.set(JSON.parse(JSON.stringify(value)));
+    })
   }
 
   // I can't think of a better way to force TS the use the correct type.
@@ -42,14 +77,46 @@ export class PageFormComponent implements OnInit {
     ['tab1', Tab1Data] |
     ['tab2', Tab2Data]
   ) {
-    this.currentState[pair[0]] = { ...pair[1] }; // lets make a clone of the data just in case
+    this.currentState.update(state => {
+      //why is this not recalculating onSavedState???
+      state[pair[0]] = { ...pair[1] }; // lets make a clone of the data just in case
+      return state;
+    })
   }
 
-  save() {
-    this.loading++;
-    setTimeout(() => {
-      this.loading--;
-    }, 2000);
+  saveState() {
+    this.loading.update(v => v + 1);
+
+    // add fallback data on tab1
+    const tab1 = this.tab1Service.save(this.currentState().tab1)
+      .pipe(catchError(err => {
+        this.messages.error(err);
+        return of(this._getEmptyState().tab1);
+      }))
+
+    // add fallback data on tab2
+    const tab2 = this.tab2Service.save(this.currentState().tab2)
+      .pipe(catchError(err => {
+        this.messages.error(err);
+        return of(this._getEmptyState().tab2);
+      }))
+
+    forkJoin({ tab1, tab2 }).pipe(
+      tap(_ => this.loading.update(v => v - 1)),
+      takeUntil(this.destroy$),
+      catchError(err => {
+        this.messages.error(err);
+        return of(this._getEmptyState());
+      })
+    ).subscribe((saved) => {
+      this.savedState.set(JSON.parse(JSON.stringify(saved)));
+    });
+  }
+
+  isOnSavedState() {
+    const strCur = JSON.stringify(this.currentState());
+    const strSaved = JSON.stringify(this.savedState());
+    return (strCur === strSaved)
   }
 
   protected _getEmptyState(): State {
@@ -63,5 +130,10 @@ export class PageFormComponent implements OnInit {
         field4: []
       }
     }
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next('');
+    this.destroy$.complete();
   }
 }

@@ -1,14 +1,22 @@
 <fieldset>
   <label [formGroup]="form" for="field3" class="row">
     <span>Field 3</span>
-    <input id="field3" (keydown.enter)="addEntity(form.get('field3')!.value)" formControlName="field3">
+    <input
+      id="field3"
+      (keydown.enter)="addTab2Entity(form.get('field3')!.value)"
+      formControlName="field3">
   </label>
 
   <div for="field3" class="row">
     <span></span>
-    <ol *ngIf="entities.length" (click)="handdleEntityMouseEvent($event)" (mouseover)="handdleEntityMouseEvent($event)"
-      (mouseout)="handdleEntityMouseEvent($event)" (dragstart)="handdleEntityMouseEvent($event)"
-      (dragover)="handdleEntityMouseEvent($event)" (drop)="handdleEntityMouseEvent($event)">
+    <ol *ngIf="entities.length"
+      (click)="handdleEntityMouseEvent($event)"
+      (mouseover)="handdleEntityMouseEvent($event)"
+      (mouseout)="handdleEntityMouseEvent($event)"
+      (dragstart)="handdleEntityMouseEvent($event)"
+      (dragover)="handdleEntityMouseEvent($event)"
+      (drop)="handdleEntityMouseEvent($event)"
+    >
       @for (ent of entities; track ent.id) {
       <li [attr.data-ind]="$index" draggable="true">{{ ent.value }}
         <!--
