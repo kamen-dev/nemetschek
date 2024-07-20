@@ -41,6 +41,7 @@
           },
           "configurations": {
             "production": {
+              "baseHref": "/nemetschek/",
               "budgets": [
                 {
                   "type": "initial",
@@ -98,6 +99,9 @@
             ],
             "scripts": []
           }
+        },
+        "deploy": {
+          "builder": "angular-cli-ghpages:deploy"
         }
       }
     }
