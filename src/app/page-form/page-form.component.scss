@@ -1,0 +1,23 @@
+@import '../../variables.scss';
+
+.nav-tabs {
+  display: flex;
+  padding: 0 .5rem;
+  margin-bottom: - .55rem;
+  a {
+    text-decoration: none;
+    color: inherit;
+    padding: .5rem .75rem;
+    border-width: 1px;
+    border-style: solid;
+    border-color: transparent;
+    &.active {
+      background-color: $color-content-background;
+      border-color: $color-separator $color-separator transparent $color-separator;
+    }
+  }
+}
+
+button {
+  padding: .5rem 1rem;
+}

@@ -21,13 +21,13 @@
 
   @let tab = selectedTab$ | async;
 
-  <nav>
+  <nav class="nav-tabs">
     <a routerLink="/form/tab1" [class.active]="tab === 'tab1'">
-      <button type="button">Tab 1</button>
+      Tab 1
     </a>
 
     <a routerLink="/form/tab2" [class.active]="tab === 'tab2'">
-      <button type="button">Tab 2</button>
+      Tab 2
     </a>
   </nav>
 

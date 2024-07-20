@@ -3,7 +3,7 @@ import { Tab1Component as Tab1 } from './tab1/tab1.component';
 import { Tab2Component as Tab2 } from './tab2/tab2.component';
 import { AsyncPipe, JsonPipe, NgIf } from '@angular/common'; // sometimes *ngIf looks better than @if
 import { ActivatedRoute, RouterLink, RouterLinkActive } from '@angular/router';
-import { catchError, forkJoin, Observable, of, Subject, switchMap, takeUntil, tap } from 'rxjs';
+import { catchError, delay, forkJoin, Observable, of, Subject, switchMap, takeUntil, tap } from 'rxjs';
 import { MessagesService } from '../services/messages.service';
 import { Tab1Data, Tab2Data } from '../models';
 import { Tab1Service } from '../services/tab1.service';
@@ -43,29 +43,48 @@ export class PageFormComponent implements OnInit {
       switchMap(params => of(params.get('tab') || 'tab1'))
     )
 
+    // since tab1 and tab2 are independant of each other
+    // we will load them compleatly separetly
+
     this.loading.update(v => v + 1);
-
-    const tab1 = this.tab1Service.fetch().pipe(catchError(err => {
-      this.messages.error(err);
-      return of(this._getEmptyState().tab1);
-    }));
-
-    const tab2 = this.tab2Service.fetch().pipe(catchError(err => {
-      this.messages.error(err);
-      return of(this._getEmptyState().tab2);
-    }));
-
-    forkJoin({ tab1, tab2 }).pipe(
+    this.tab1Service.fetch().pipe(
+      delay(300), // testing if tab 1 flashes the data from store
       tap(_ => this.loading.update(v => v - 1)),
       takeUntil(this.destroy$),
       catchError(err => {
         this.messages.error(err);
-        return of(this._getEmptyState());
+        return of(this._getEmptyState().tab1);
       })
     ).subscribe((value) => {
       // make copies but destroy all complex data types like date or map
-      this.currentState.set(JSON.parse(JSON.stringify(value)));
-      this.savedState.set(JSON.parse(JSON.stringify(value)));
+      this.currentState.update((state) => {
+        state.tab1 = JSON.parse(JSON.stringify(value));
+        return state;
+      });
+      this.savedState.update((state) => {
+        state.tab1 = JSON.parse(JSON.stringify(value));
+        return state;
+      })
+    })
+
+    this.loading.update(v => v + 1);
+    this.tab2Service.fetch().pipe(
+      delay(1000),
+      tap(_ => this.loading.update(v => v - 1)),
+      takeUntil(this.destroy$),
+      catchError(err => {
+        this.messages.error(err);
+        return of(this._getEmptyState().tab2);
+      })
+    ).subscribe((value) => {
+      this.currentState.update((state) => {
+        state.tab2 = JSON.parse(JSON.stringify(value));
+        return state;
+      });
+      this.savedState.update((state) => {
+        state.tab2 = JSON.parse(JSON.stringify(value));
+        return state;
+      })
     })
   }
 

@@ -1,12 +1,13 @@
 @import './variables.scss';
+@import './normalize.css';
 
 html, body {
-  margin: 0;
-  padding: 0;
+  min-height: 100%;
 }
 
 body {
   background-color: $color-main-background;
+  background: no-repeat linear-gradient(132deg, #7db9fc 10%, #e6e6fa 92%);
 }
 
 .container {
@@ -23,6 +24,7 @@ body {
 
 .message {
   display: flex;
+  justify-content: center;
   gap: .5rem;
   span {
     text-transform: capitalize;
@@ -32,10 +34,27 @@ body {
   }
 }
 
-.disabled {
-  opacity: .75;
+.disabled,
+[disabled] {
+  opacity: .55;
 }
 
 fieldset {
   border: none;
+}
+
+a {
+  color: #0062cc;
+}
+
+button {
+  background-color: #007bff;
+  border: solid 1px #007bff;
+  border-radius: 3px;
+  color: #fff;
+
+  &:hover {
+    background-color: #0069d9;
+    border-color: #0062cc;
+  }
 }
