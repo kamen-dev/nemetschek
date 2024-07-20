@@ -35,9 +35,11 @@
               "src/styles.scss"
             ],
             "scripts": [],
+            "prerender": false,
             "server": "src/main.server.ts",
-            "prerender": true,
-            "ssr": false
+            "ssr": {
+              "entry": "server.ts"
+            }
           },
           "configurations": {
             "production": {
