@@ -52,6 +52,7 @@ export class PageFormComponent implements OnInit {
       tap(_ => this.loading.update(v => v - 1)),
       takeUntil(this.destroy$),
       catchError(err => {
+        this.loading.update(v => v - 1);
         this.messages.error(err);
         return of(this._getEmptyState().tab1);
       })
@@ -73,6 +74,7 @@ export class PageFormComponent implements OnInit {
       tap(_ => this.loading.update(v => v - 1)),
       takeUntil(this.destroy$),
       catchError(err => {
+        this.loading.update(v => v - 1);
         this.messages.error(err);
         return of(this._getEmptyState().tab2);
       })
