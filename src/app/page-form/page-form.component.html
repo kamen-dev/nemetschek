@@ -1,6 +1,7 @@
 <main class="container">
   <p class="content">
     <button
+      data-test-button="save"
       (click)="saveState()"
       [disabled]="!!loading() || isOnSavedState()"
     >Save</button>
@@ -10,23 +11,23 @@
   </p>
 
   <p class="content" *ngIf="messages.get().length">
-  @for (msg of messages.get(); track msg.id) {
-    <div class="message">
-      <span class="type">{{ msg.type }}: </span>
-      <span class="text">{{ msg.text }}</span>
-      <button type="button" title="Remove" (click)="messages.remove($index)">X</button>
-    </div>
-    }
+    @for (msg of messages.get(); track msg.id) {
+  <div class="message">
+    <span class="type">{{ msg.type }}: </span>
+    <span class="text">{{ msg.text }}</span>
+    <button type="button" title="Remove" (click)="messages.remove($index)">X</button>
+  </div>
+  }
   </p>
 
   @let tab = selectedTab$ | async;
 
   <nav class="nav-tabs">
-    <a routerLink="/form/tab1" [class.active]="tab === 'tab1'">
+    <a data-test-button="tab1" routerLink="/form/tab1" [class.disabled]="!!loading()" [class.active]="tab === 'tab1'">
       Tab 1
     </a>
 
-    <a routerLink="/form/tab2" [class.active]="tab === 'tab2'">
+    <a data-test-button="tab3" routerLink="/form/tab2" [class.disabled]="!!loading()" [class.active]="tab === 'tab2'">
       Tab 2
     </a>
   </nav>
