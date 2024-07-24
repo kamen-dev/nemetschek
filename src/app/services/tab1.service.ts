@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { TextStorageService } from '../text-storage/text-storage.service';
+import { LoggerService } from './logger.service';
 
 import { delay, map, Observable } from 'rxjs';
 import { Tab1Data } from '../models';
@@ -9,16 +10,26 @@ import { Tab1Data } from '../models';
 })
 export class Tab1Service {
 
-  constructor(private storage: TextStorageService) { }
+  constructor(
+    private storage: TextStorageService,
+    private logger: LoggerService
+  ) { }
 
   fetch(): Observable<Tab1Data> {
     return this.storage.fetch('tab1').pipe(map(str => {
       try {
         return JSON.parse(str || '{}') as Tab1Data;
       } catch (err) {
-        alert("Invalid JSON"); //not sure how to handle this
+        this.logger.log({
+          type: 'error',
+          bucket: 'Tab1Service.fetch',
+          text: JSON.stringify({
+            input: str,
+            error: (err as Error).message
+          })
+        })
+        throw (err);
       }
-      return { field1: '', field2: '' }
     }));
   }
 
@@ -30,10 +41,17 @@ export class Tab1Service {
         try {
           return JSON.parse(res);
         } catch (err) {
+          this.logger.log({
+            type: 'error',
+            bucket: 'Tab1Service.save',
+            text: JSON.stringify({
+              input: data,
+              error: (err as Error).message
+            })
+          })
           return data;
         }
       })
     );
   }
-
 }

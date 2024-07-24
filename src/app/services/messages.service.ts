@@ -1,12 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-
-export type Message = {
-  id: string,
-  type: 'info' | 'success' | 'error' | 'warning',
-  bucket: string,
-  text: string,
-  duration: number //maybe implement autodelete or something
-}
+import { Message } from '../models';
 
 @Injectable({
   providedIn: 'root'
@@ -18,17 +11,14 @@ export class MessagesService {
   constructor() { }
 
   add(message: Partial<Message>) {
-    this._messages.update(msgs => {
-      msgs.push({
-        id: (new Date()).getTime().toString(),
-        type: 'info',
-        bucket: 'dafault',
-        duration: 0,
-        text: '',
-        ...message
-      });
-      return msgs;
-    });
+    this._messages.update(msgs => [...msgs, {
+      id: (new Date()).getTime().toString(),
+      type: 'info',
+      bucket: 'dafault',
+      duration: 0,
+      text: '',
+      ...message
+    }]);
   }
 
   error(text: string) {
