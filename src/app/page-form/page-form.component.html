@@ -8,6 +8,7 @@
     @if (loading()) {
       Proccesing...
     }
+    <button (click)="refreshJokes()" [disabled]="jokesLoading$ | async">Refresh Jokes</button>
   </p>
 
   <p class="content" *ngIf="messages.get().length">

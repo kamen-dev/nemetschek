@@ -1,11 +1,13 @@
-import { Component, Input, OnInit, Output, EventEmitter, SimpleChanges, OnChanges, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, SimpleChanges, OnChanges, OnDestroy, inject } from '@angular/core';
 import { FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Tab1Data } from '../../models';
+import { JokesService } from '../../services/jokes.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-tab1',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule],
+  imports: [FormsModule, ReactiveFormsModule, CommonModule],
   templateUrl: './tab1.component.html',
   styleUrls: [
     // Not my prefered way to share styles.
@@ -15,6 +17,9 @@ import { Tab1Data } from '../../models';
   ]
 })
 export class Tab1Component implements OnInit, OnChanges {
+  private jokes = inject(JokesService);
+  jokes$ = this.jokes.list$;
+
   @Input() prefill: Tab1Data = {
     field1: '',
     field2: ''

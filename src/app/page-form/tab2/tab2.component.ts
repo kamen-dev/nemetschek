@@ -1,14 +1,15 @@
-import { NgIf } from '@angular/common';
-import { Component, Input, OnInit, Output, EventEmitter, SimpleChanges, OnChanges, SimpleChange, OnDestroy, WritableSignal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, Input, OnInit, Output, EventEmitter, SimpleChanges, OnChanges, SimpleChange, OnDestroy, WritableSignal, inject } from '@angular/core';
 import { FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MessagesService } from '../../services/messages.service';
 
 import { Tab2Entity, Tab2Data } from '../../models';
+import { JokesService } from '../../services/jokes.service';
 
 @Component({
   selector: 'app-tab2',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, NgIf],
+  imports: [FormsModule, ReactiveFormsModule, CommonModule],
   templateUrl: './tab2.component.html',
   styleUrls: [
     '../page-form.children.scss',
@@ -16,6 +17,9 @@ import { Tab2Entity, Tab2Data } from '../../models';
   ]
 })
 export class Tab2Component implements OnInit, OnChanges {
+  private jokes = inject(JokesService);
+  jokes$ = this.jokes.list$;
+
   @Input() prefill: Tab2Data = {
     field3: '',
     field4: []

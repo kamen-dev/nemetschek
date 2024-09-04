@@ -6,6 +6,7 @@ import { provideClientHydration } from '@angular/platform-browser';
 import { TextStorageService } from './text-storage/text-storage.service';
 import { LocalService } from './text-storage/local.service';
 import { CookieService } from './text-storage/cookie.service';
+import { provideHttpClient } from '@angular/common/http';
 
 const cache = {
   storageType: 'local-storage'
@@ -13,6 +14,7 @@ const cache = {
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideHttpClient(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideClientHydration(),

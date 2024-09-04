@@ -1,10 +1,11 @@
 import { Component, computed, signal, Signal, WritableSignal } from '@angular/core';
 import { TextStorageService } from '../text-storage/text-storage.service';
+import { HeadingDirective } from '../directives/heading';
 
 @Component({
   selector: 'app-page-welcome',
   standalone: true,
-  imports: [],
+  imports: [HeadingDirective],
   templateUrl: './page-welcome.component.html',
   styleUrl: './page-welcome.component.scss'
 })

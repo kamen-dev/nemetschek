@@ -8,19 +8,11 @@ import { Observable, of } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
-export class TextStorageService implements TextStorageInterface {
+export abstract class TextStorageService implements TextStorageInterface {
 
-  constructor() { }
+  abstract put(key: string, data: string): Observable<string>
 
-  put(key: string, data: string): Observable<string> {
-    return of(data);
-  }
+  abstract fetch(key: string): Observable<string | null>
 
-  fetch(key: string): Observable<string | null> {
-    return of();
-  }
-
-  remove(key: string): Observable<void> {
-    return of();
-  }
+  abstract remove(key: string): Observable<void>
 }

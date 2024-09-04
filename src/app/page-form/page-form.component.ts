@@ -1,13 +1,14 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { Tab1Component as Tab1 } from './tab1/tab1.component';
 import { Tab2Component as Tab2 } from './tab2/tab2.component';
 import { AsyncPipe, JsonPipe, NgIf } from '@angular/common'; // sometimes *ngIf looks better than @if
 import { ActivatedRoute, RouterLink, RouterLinkActive } from '@angular/router';
-import { catchError, delay, forkJoin, Observable, of, Subject, switchMap, takeUntil, tap } from 'rxjs';
+import { catchError, delay, distinctUntilChanged, forkJoin, map, Observable, of, Subject, switchMap, takeUntil, tap } from 'rxjs';
 import { MessagesService } from '../services/messages.service';
 import { Tab1Data, Tab2Data } from '../models';
 import { Tab1Service } from '../services/tab1.service';
 import { Tab2Service } from '../services/tab2.service';
+import { JokesService } from '../services/jokes.service';
 // import { deepEqual } from 'assert'; // this does not work in the browser...
 
 type State = {
@@ -29,23 +30,31 @@ export class PageFormComponent implements OnInit {
   savedState = signal<State>(this._getEmptyState());
 
   loading = signal(0);
-  selectedTab$!: Observable<string>;
+
+  private route = inject(ActivatedRoute);
+  selectedTab$ = this.route.paramMap.pipe(
+    map(params => params.get('tab') || 'tab1'),
+    distinctUntilChanged()
+  )
+  private jokes = inject(JokesService);
+  jokesLoading$ = this.jokes.loading$;
 
   constructor(
-    private route: ActivatedRoute,
     private tab1Service: Tab1Service,
     private tab2Service: Tab2Service,
     public messages: MessagesService,
-  ) { }
+  ) {
+  }
 
   ngOnInit(): void {
-    this.selectedTab$ = this.route.paramMap.pipe(
-      switchMap(params => of(params.get('tab') || 'tab1'))
-    )
-
     // since tab1 and tab2 are independant of each other
     // we will load them compleatly separetly
 
+    this.loadTab1Data();
+    this.loadTab2Data();
+  }
+
+  protected loadTab1Data() {
     this.loading.update(v => v + 1);
     this.tab1Service.fetch().pipe(
       delay(300), // testing if tab 1 flashes the data from store
@@ -67,7 +76,9 @@ export class PageFormComponent implements OnInit {
         return state;
       })
     })
+  };
 
+  protected loadTab2Data() {
     this.loading.update(v => v + 1);
     this.tab2Service.fetch().pipe(
       delay(1000),
@@ -138,6 +149,10 @@ export class PageFormComponent implements OnInit {
     const strCur = JSON.stringify(this.currentState());
     const strSaved = JSON.stringify(this.savedState());
     return (strCur === strSaved)
+  }
+
+  refreshJokes() {
+    this.jokes.refresh();
   }
 
   protected _getEmptyState(): State {
